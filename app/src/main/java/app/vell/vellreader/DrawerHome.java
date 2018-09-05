@@ -11,11 +11,20 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class DrawerHome extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     private Button start, stop, readImage;
@@ -122,9 +131,57 @@ public class DrawerHome extends AppCompatActivity implements NavigationView.OnNa
         } else if(v == stop){
             stopService(new Intent(this, BackgroundService.class));
         } else if(v == readImage){
-            //TODO Implement FileReader Here
-            //toast = Toast.makeText(context, "log", duration);
-            //toast.show();
+            String path = getFilesDir().getAbsolutePath();
+            String path1 = getExternalFilesDir(null).toString();
+            String fileName = path + "/out.bin";
+
+            //Writing File
+            try {
+                FileOutputStream fos = new FileOutputStream(fileName);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                baos.write(15);
+                baos.write(16);
+                baos.write(17);
+                baos.write(18);
+                baos.write(19);
+                baos.writeTo(fos);
+                fos.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            /*
+            File file = new File(fileName);
+            if(file.exists()){
+                toast = Toast.makeText(context, "exist " + fileName, duration);
+                toast.show();
+            } else {
+                toast = Toast.makeText(context, "absence", duration);
+                toast.show();
+            }
+            */
+
+            //Reading File
+            try {
+                FileInputStream fis = new FileInputStream(fileName);
+                byte buff[] = new byte[(int)fis.getChannel().size()];
+                fis.read(buff,0,buff.length);
+                Log.d("Vell", String.valueOf(fis.getChannel().size()));
+                Log.d("Vell", String.valueOf(buff[0] & 0xff));
+                Log.d("Vell", String.valueOf(buff[1] & 0xff));
+                Log.d("Vell", String.valueOf(buff[2] & 0xff));
+                Log.d("Vell", String.valueOf(buff[3] & 0xff));
+                Log.d("Vell", String.valueOf(buff[4] & 0xff));
+                //toast = Toast.makeText(context, "", duration);
+                //toast.show();
+                fis.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
